@@ -16,7 +16,12 @@ namespace Cards
         private string folderPath = null;
         private string[] fileNames = null;
         private Random rand = new Random();
+
         private List<PictureBox> cardImages = new List<PictureBox>();
+
+        private bool mouseHold = false;
+        private int deltaX;
+        private int deltaY; 
 
         public Desk()
         {
@@ -67,7 +72,10 @@ namespace Cards
                     Top = rand.Next(40, 250),
                     Image = Image.FromFile(fileName)
                 };
-                filePictureBox.Click += Card_Click;
+                filePictureBox.MouseDoubleClick += Card_DoubleClick;
+                filePictureBox.MouseDown += Card_MouseDown;
+                filePictureBox.MouseUp += Card_MouseUp;
+                filePictureBox.MouseMove += Card_MouseMove;
                 this.Controls.Add(filePictureBox);
                 cardImages.Add(filePictureBox);
             }
@@ -97,11 +105,42 @@ namespace Cards
             }
         }
 
-        private void Card_Click(object sender, EventArgs e)
+        private void Card_DoubleClick(object sender, EventArgs e)
         {
             var card = (PictureBox)sender;
             card.Location = new Point(2, 28);
             card.BringToFront();
+        }
+
+        private void Card_MouseDown(object sender, MouseEventArgs e)
+        {
+            var card = (PictureBox)sender;
+            card.BringToFront();
+            if (e.Button == MouseButtons.Left)
+            {
+                mouseHold = true;
+                deltaX = e.X;
+                deltaY = e.Y;
+            }
+        }
+
+        private void Card_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                mouseHold = false;
+            }
+        }
+
+        private void Card_MouseMove(object sender, MouseEventArgs e)
+        {
+            var card = (PictureBox)sender;
+            if (!mouseHold)
+            {
+                return;
+            }
+            card.Top = e.Y + card.Top - deltaY;
+            card.Left = e.X + card.Left - deltaX;
         }
     }
 }
